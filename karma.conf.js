@@ -15,22 +15,20 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'app/**/*.js',
-          //  'app/**/*spec.js'
+            'src/**/!(bundle).js',
         ],
 
 
         // list of files to exclude
         exclude: [
-          'app/dist/*'
+          'src/dist'
         ],
 
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'app/**/*.js': ['browserify'],
-            //'app/**/*spec.js': ['browserify']
+            'src/**/!(bundle).js': ['browserify'],
         },
 
         browserify: {

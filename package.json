@@ -23,6 +23,8 @@
     "browserify": "9.0.8",
     "exorcist": "0.4.0",
     "gulp": "3.8.11",
+    "gulp-sass": "2.3.2",
+    "gulp-sourcemaps": "1.6.0",
     "gulp-util": "3.0.7",
     "jasmine-core": "2.5.0",
     "karma": "1.2.0",

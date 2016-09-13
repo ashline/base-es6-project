@@ -1,59 +1,19 @@
 var gulp = require('gulp');
-var karmaServer = require('karma').Server;
+var plugins = require('./gulp-tasks/plugins')();
 
-var gulp = require('gulp');
-var Server = require('karma').Server;
-//
-var gutil       = require('gulp-util');
-var source      = require('vinyl-source-stream');
-var babelify    = require('babelify');
-var watchify    = require('watchify');
-var exorcist    = require('exorcist');
-var browserify  = require('browserify');
-var browserSync = require('browser-sync').create();
-
-// Watchify args contains necessary cache options to achieve fast incremental bundles.
-// See watchify readme for details. Adding debug true for source-map generation.
-watchify.args.debug = true;
-// Input file.
-var bundler = watchify(browserify('./src/index.js', watchify.args));
-
-// Babel transform
-bundler.transform(babelify.configure({
-    sourceMapRelative: 'src'
-}));
-
-// On updates recompile
-bundler.on('update', bundle);
-
-function bundle() {
-
-    gutil.log('Compiling JS...');
-
-    return bundler.bundle()
-        .on('error', function (err) {
-            gutil.log(err.message);
-            browserSync.notify("Browserify Error!");
-            this.emit("end");
-        })
-        .pipe(exorcist('src/dist/bundle.js.map'))
-        .pipe(source('bundle.js'))
-        .pipe(gulp.dest('./src/dist'))
-        .pipe(browserSync.stream({once: true}));
+function getTask(task) {
+    return require(`./gulp-tasks/${task}`)(gulp, plugins);
 }
-
 /**
- * Gulp task alias
+ * bundle js
  */
-gulp.task('bundle', function () {
-    return bundle();
-});
+gulp.task('bundle', getTask('bundle'));
 
 /**
  * First bundle, then serve from the ./app directory
  */
-gulp.task('default', ['bundle'], function () {
-    browserSync.init({
+gulp.task('default', ['sass', 'sass:watch', 'bundle'], function() {
+    plugins.browserSync.init({
         server: "./src"
     });
 });
@@ -61,18 +21,18 @@ gulp.task('default', ['bundle'], function () {
 /**
  *  * Run test once and exit
  *   */
-gulp.task('test', function (done) {
-	new karmaServer({
-		configFile: __dirname + '/karma.conf.js',
-	        singleRun: true
-	}, done).start();
-});
+gulp.task('test', getTask('test'));
 
 /**
  *  * Watch for file changes and re-run tests on each change
  *   */
-gulp.task('tdd', function (done) {
-	  new karmaServer({
-		configFile: __dirname + '/karma.conf.js'
-	  }, done).start();
+gulp.task('tdd', getTask('tdd'));
+
+/**
+ * * Sass
+ *  */
+gulp.task('sass', getTask('sass'));
+
+gulp.task('sass:watch', function() {
+    gulp.watch('./src/**/*.scss', ['sass']);
 });
